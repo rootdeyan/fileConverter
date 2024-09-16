@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Format Converter</title>
+    <!-- Include Ubuntu font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CSS Styling -->
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            background: linear-gradient(to bottom, #003D5B, #25E2CC);
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+        h1 {
+            margin-bottom: 30px;
+            text-align: center;
+            color: #fff;
+        }
+        /* Converter Container */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+        }
+        .converter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .converter-section {
+            background-color: #fff;
+            color: #003D5B;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            flex: 1 1 45%;
+            box-sizing: border-box;
+            margin-right: 10px;
+            margin-left: 10px;
+            position: relative;
+        }
+        .converter-section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #003D5B;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        .converter-section p {
+            font-size: 16px;
+            color: #003D5B;
+            margin-bottom: 30px;
+        }
+        .file-input {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .file-input input[type="file"] {
+            display: none;
+        }
+        .file-input label {
+            background-color: #25E2CC;
+            color: #003D5B;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .file-input label:hover {
+            background-color: #1DB8A6;
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+        .file-name {
+            display: block;
+            margin-top: 10px;
+            font-size: 16px;
+            color: #003D5B;
+        }
+        .format-selection {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .format-selection label {
+            margin: 0 10px;
+            font-size: 16px;
+            color: #003D5B;
+        }
+        .format-selection select {
+            padding: 10px;
+            font-size: 16px;
+            margin: 0 10px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7;
+            background-color: #ecf0f1;
+            color: #003D5B;
+        }
+        .convert-button {
+            background-color: #25E2CC;
+            color: #003D5B;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .convert-button:hover {
+            background-color: #1DB8A6;
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+        .download-link {
+            display: none;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #003D5B;
+            background-color: #25E2CC;
+            padding: 12px 24px;
+            border-radius: 4px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .download-link:hover {
+            background-color: #1DB8A6;
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #25E2CC;
+            width: 0%;
+            transition: width 0.2s;
+        }
+        .progress-text {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #003D5B;
+        }
+        /* Success Modal Styles */
+        .success-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .success-modal-content {
+            background-color: #25E2CC;
+            margin: 15% auto;
+            padding: 20px;
+            border: none;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            border-radius: 10px;
+            position: relative;
+            animation: fadeIn 0.5s;
+        }
+        .success-modal-content i {
+            font-size: 60px;
+            color: #003D5B;
+            margin-bottom: 10px;
+        }
+        .success-modal-content p {
+            color: #003D5B;
+            font-size: 18px;
+            margin: 0;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        /* Footer Styles */
+        #footer {
+            margin-top: 50px;
+            color: #000000;
+            font-size: 12px;
+            text-align: center;
+        }
+        /* Responsive Adjustments */
+        @media (max-width: 1000px) {
+            .converter-section {
+                flex: 1 1 100%;
+                margin-right: 0;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Format Converter</h1>
+
+        <!-- Converter Container -->
+        <div class="converter-container">
+            <!-- Document Format Converter Section -->
+            <div class="converter-section" id="documentConverter">
+                <h2>Document Format Converter</h2>
+                <p>Convert between various document formats including TSV, CSV, XLSX, and PDF.</p>
+                <div class="file-input">
+                    <input type="file" id="fileInputDoc">
+                    <label for="fileInputDoc">Choose Document File</label>
+                </div>
+                <!-- Display selected file name -->
+                <span id="fileNameDoc" class="file-name"></span>
+                <div class="format-selection">
+                    <label for="inputFormatDoc">From:</label>
+                    <select id="inputFormatDoc">
+                        <option value="auto">Auto-detect</option>
+                        <option value="tsv">TSV</option>
+                        <option value="csv">CSV</option>
+                        <option value="xlsx">XLSX</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                    <label for="outputFormatDoc">To:</label>
+                    <select id="outputFormatDoc">
+                        <option value="tsv">TSV</option>
+                        <option value="csv">CSV</option>
+                        <option value="xlsx">XLSX</option>
+                        <option value="pdf">PDF</option>
+                        <option value="txt">TXT</option>
+                    </select>
+                </div>
+                <button id="convertButtonDoc" class="convert-button">Convert Document</button>
+                <!-- Progress bar and text -->
+                <div class="progress-container" id="progressContainerDoc">
+                    <div class="progress-bar" id="progressBarDoc"></div>
+                </div>
+                <div class="progress-text" id="progressTextDoc"></div>
+                <!-- Download link -->
+                <a id="downloadLinkDoc" class="download-link">Download Converted File</a>
+            </div>
+
+            <!-- Image Format Converter Section -->
+            <div class="converter-section" id="imageConverter">
+                <h2>Image Format Converter</h2>
+                <p>Convert images between JPEG, PNG, GIF, and PDF formats.</p>
+                <div class="file-input">
+                    <input type="file" id="fileInputImg" accept="image/*,application/pdf">
+                    <label for="fileInputImg">Choose Image or PDF File</label>
+                </div>
+                <!-- Display selected file name -->
+                <span id="fileNameImg" class="file-name"></span>
+                <div class="format-selection">
+                    <label for="inputFormatImg">From:</label>
+                    <select id="inputFormatImg">
+                        <option value="auto">Auto-detect</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                        <option value="gif">GIF</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                    <label for="outputFormatImg">To:</label>
+                    <select id="outputFormatImg">
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                        <option value="gif">GIF</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </div>
+                <button id="convertButtonImg" class="convert-button">Convert Image</button>
+                <!-- Progress bar and text -->
+                <div class="progress-container" id="progressContainerImg">
+                    <div class="progress-bar" id="progressBarImg"></div>
+                </div>
+                <div class="progress-text" id="progressTextImg"></div>
+                <!-- Download link -->
+                <a id="downloadLinkImg" class="download-link">Download Converted File</a>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        <p><u>All processing is done locally in your browser. Your files are not uploaded to any server.</u></p>
+        <p><b>Limitations:</b><br>
+            PDF to Document Conversion: Extracting structured data (like tables) from PDFs is limited.<br>
+            Complex PDFs: PDFs with complex layouts, images, or special fonts may not convert perfectly.</p>
+        <p>Converter by <i>Sr. Quality Evaluator - Deyan Simeonov</i></p>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="success-modal">
+        <div class="success-modal-content">
+            <i class="fas fa-check-circle"></i>
+            <p>Conversion Successful!</p>
+        </div>
+    </div>
+
+    <!-- Include Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Include jsPDF library (version 1.5.3) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
+    <!-- Include jsPDF-AutoTable plugin (version 3.1.1) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.1.1/jspdf.plugin.autotable.js"></script>
+    <!-- Include PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+    <!-- JavaScript Code -->
+    <script>
+        // Load PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js';
+
+        // Helper Functions
+        function updateProgress(containerId, barId, textId, percentage, estimatedTime) {
+            const progressContainer = document.getElementById(containerId);
+            const progressBar = document.getElementById(barId);
+            const progressText = document.getElementById(textId);
+
+            progressContainer.style.display = 'block';
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = 'Progress: ' + Math.round(percentage) + '% - Estimated time remaining: ' + estimatedTime + ' seconds';
+        }
+
+        function resetProgress(containerId, barId, textId) {
+            const progressContainer = document.getElementById(containerId);
+            const progressBar = document.getElementById(barId);
+            const progressText = document.getElementById(textId);
+
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressText.textContent = '';
+        }
+
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 4000); // Display the modal for 4 seconds
+        }
+
+        function createDownloadLink(blob, filename, linkId) {
+            const downloadLink = document.getElementById(linkId);
+
+            if (!downloadLink) {
+                console.error('Download link element not found');
+                return;
+            }
+
+            // Revoke previous object URL to avoid memory leaks
+            if (downloadLink.href) {
+                URL.revokeObjectURL(downloadLink.href);
+            }
+
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = filename;
+            downloadLink.style.display = 'inline-block';
+
+            // Show success modal
+            showSuccessModal();
+        }
+
+        // Utility Function
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Event Listeners for File Inputs
+        document.getElementById('fileInputDoc').addEventListener('change', function () {
+            handleFileSelection(this, 'fileNameDoc');
+        });
+
+        document.getElementById('fileInputImg').addEventListener('change', function () {
+            handleFileSelection(this, 'fileNameImg');
+        });
+
+        function handleFileSelection(inputElement, fileNameId) {
+            const fileName = inputElement.files[0] ? inputElement.files[0].name : '';
+            document.getElementById(fileNameId).textContent = fileName;
+        }
+
+        // Convert Button Event Listeners
+        document.getElementById('convertButtonDoc').addEventListener('click', function () {
+            handleConversion('doc');
+        });
+
+        document.getElementById('convertButtonImg').addEventListener('click', function () {
+            handleConversion('img');
+        });
+
+        // Main Conversion Handler
+        function handleConversion(type) {
+            const fileInput = document.getElementById(`fileInput${capitalize(type)}`);
+            const file = fileInput.files[0];
+            const inputFormat = document.getElementById(`inputFormat${capitalize(type)}`).value;
+            const outputFormat = document.getElementById(`outputFormat${capitalize(type)}`).value;
+
+            if (!file) {
+                alert('Please select a file to convert.');
+                return;
+            }
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            let inferredInputFormat = inputFormat === 'auto' ? fileExtension : inputFormat;
+
+            // Reset progress and hide download link
+            resetProgress(`progressContainer${capitalize(type)}`, `progressBar${capitalize(type)}`, `progressText${capitalize(type)}`);
+            document.getElementById(`downloadLink${capitalize(type)}`).style.display = 'none';
+
+            // Simulate processing time based on file size
+            const fileSize = file.size;
+            const processingTime = Math.max(Math.floor(fileSize / 500000), 1); // Approximate processing time in seconds
+            let timeRemaining = processingTime;
+
+            // Update estimated time remaining
+            const intervalId = setInterval(() => {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    const progressPercent = ((processingTime - timeRemaining) / processingTime) * 100;
+                    updateProgress(`progressContainer${capitalize(type)}`, `progressBar${capitalize(type)}`, `progressText${capitalize(type)}`, progressPercent, timeRemaining);
+                } else {
+                    clearInterval(intervalId);
+                    resetProgress(`progressContainer${capitalize(type)}`, `progressBar${capitalize(type)}`, `progressText${capitalize(type)}`);
+                }
+            }, 1000);
+
+            // Perform conversion after delay
+            setTimeout(() => {
+                try {
+                    if (type === 'doc') {
+                        convertDocument(file, inferredInputFormat, outputFormat);
+                    } else if (type === 'img') {
+                        convertImage(file, inferredInputFormat, outputFormat);
+                    }
+
+                    // Clear file input and filename display
+                    fileInput.value = '';
+                    document.getElementById(`fileName${capitalize(type)}`).textContent = '';
+                } catch (error) {
+                    console.error('Conversion error:', error);
+                    alert('An error occurred during conversion.');
+                }
+            }, processingTime * 1000);
+        }
+
+        // Document Conversion Function
+        function convertDocument(file, inputFormat, outputFormat) {
+            const reader = new FileReader();
+
+            reader.onload = async function (e) {
+                let data = e.target.result;
+                let workbook, worksheet, rows;
+
+                try {
+                    if (inputFormat === 'pdf') {
+                        if (outputFormat === 'txt') {
+                            // Extract text from PDF
+                            const pdfData = new Uint8Array(data);
+                            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                            let textContent = '';
+                            for (let i = 1; i <= pdf.numPages; i++) {
+                                const page = await pdf.getPage(i);
+                                const text = await page.getTextContent();
+                                text.items.forEach(item => {
+                                    textContent += item.str + ' ';
+                                });
+                                textContent += '\n';
+                            }
+                            const blob = new Blob([textContent], { type: 'text/plain' });
+                            createDownloadLink(blob, file.name.replace(/\.[^/.]+$/, '') + '.txt', 'downloadLinkDoc');
+                        } else {
+                            alert('Conversion from PDF to the selected format is not supported.');
+                        }
+                    } else if (outputFormat === 'pdf') {
+                        // Convert document to PDF
+                        if (inputFormat === 'tsv') {
+                            rows = data.split('\n').map(row => row.split('\t'));
+                        } else if (inputFormat === 'csv') {
+                            rows = data.split('\n').map(row => row.split(','));
+                        } else if (inputFormat === 'xlsx') {
+                            workbook = XLSX.read(data, { type: 'array' });
+                            worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                            rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        } else {
+                            alert('Unsupported input format.');
+                            return;
+                        }
+
+                        // Generate PDF
+                        var doc = new jsPDF();
+
+                        if (typeof doc.autoTable !== 'function') {
+                            console.error('autoTable is not a function');
+                            alert('Failed to initialize PDF generator.');
+                            return;
+                        }
+
+                        doc.autoTable({ body: rows });
+                        var pdfBlob = doc.output('blob');
+
+                        createDownloadLink(pdfBlob, file.name.replace(/\.[^/.]+$/, '') + '.pdf', 'downloadLinkDoc');
+                    } else if (outputFormat === 'tsv' || outputFormat === 'csv' || outputFormat === 'txt') {
+                        // Convert XLSX to TSV, CSV, or TXT
+                        if (inputFormat === 'xlsx') {
+                            workbook = XLSX.read(data, { type: 'array' });
+                            worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                            rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                            // Convert rows to desired format
+                            let delimiter;
+                            if (outputFormat === 'tsv') {
+                                delimiter = '\t';
+                            } else if (outputFormat === 'csv') {
+                                delimiter = ',';
+                            } else if (outputFormat === 'txt') {
+                                delimiter = ' ';
+                            } else {
+                                alert('Unsupported output format.');
+                                return;
+                            }
+
+                            let content = rows.map(row => row.join(delimiter)).join('\n');
+                            let blob = new Blob([content], { type: 'text/plain' });
+                            createDownloadLink(blob, file.name.replace(/\.[^/.]+$/, '') + '.' + outputFormat, 'downloadLinkDoc');
+                        } else {
+                            // Handle TSV to CSV/TXT and vice versa
+                            if (inputFormat === 'tsv') {
+                                rows = data.split('\n').map(row => row.split('\t'));
+                            } else if (inputFormat === 'csv') {
+                                rows = data.split('\n').map(row => row.split(','));
+                            } else {
+                                alert('Unsupported input format for this conversion.');
+                                return;
+                            }
+
+                            // Convert rows to desired format
+                            let delimiter;
+                            if (outputFormat === 'tsv') {
+                                delimiter = '\t';
+                            } else if (outputFormat === 'csv') {
+                                delimiter = ',';
+                            } else if (outputFormat === 'txt') {
+                                delimiter = ' ';
+                            } else {
+                                alert('Unsupported output format.');
+                                return;
+                            }
+
+                            let content = rows.map(row => row.join(delimiter)).join('\n');
+                            let blob = new Blob([content], { type: 'text/plain' });
+                            createDownloadLink(blob, file.name.replace(/\.[^/.]+$/, '') + '.' + outputFormat, 'downloadLinkDoc');
+                        }
+                    } else if (inputFormat === 'xlsx' && outputFormat === 'xlsx') {
+                        // No conversion needed; provide the original file
+                        createDownloadLink(new Blob([data], { type: 'application/octet-stream' }), file.name, 'downloadLinkDoc');
+                    } else {
+                        alert('Conversion between the selected formats is not supported.');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error during document conversion:', error);
+                    alert('An error occurred during document conversion.');
+                }
+            };
+
+            if (inputFormat === 'xlsx' || inputFormat === 'pdf') {
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.readAsText(file);
+            }
+        }
+
+        // Image Conversion Function
+        function convertImage(file, inputFormat, outputFormat) {
+            const reader = new FileReader();
+
+            reader.onload = async function (e) {
+                try {
+                    if (inputFormat === 'pdf') {
+                        if (outputFormat === 'jpeg' || outputFormat === 'png') {
+                            const pdfData = new Uint8Array(await file.arrayBuffer());
+                            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                            const page = await pdf.getPage(1);
+                            const viewport = page.getViewport({ scale: 2 });
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+
+                            await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+                            canvas.toBlob(function (blob) {
+                                createDownloadLink(blob, file.name.replace(/\.[^/.]+$/, '') + '.' + outputFormat, 'downloadLinkImg');
+                            }, 'image/' + outputFormat);
+                        } else {
+                            alert('Unsupported output format.');
+                        }
+                    } else if (outputFormat === 'pdf') {
+                        // Convert Image to PDF
+                        let img = new Image();
+                        img.onload = function () {
+                            // Create a canvas to draw the image
+                            let canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            let ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+
+                            // Get the image data in Base64 format
+                            let imgData = canvas.toDataURL('image/PNG');
+
+                            // Generate PDF
+                            var doc = new jsPDF();
+
+                            // Calculate dimensions to fit the image to the PDF page while maintaining aspect ratio
+                            let pdfWidth = doc.internal.pageSize.getWidth();
+                            let pdfHeight = doc.internal.pageSize.getHeight();
+                            let imgWidth = img.width;
+                            let imgHeight = img.height;
+
+                            let widthRatio = pdfWidth / imgWidth;
+                            let heightRatio = pdfHeight / imgHeight;
+                            let ratio = Math.min(widthRatio, heightRatio);
+
+                            let imgDisplayWidth = imgWidth * ratio;
+                            let imgDisplayHeight = imgHeight * ratio;
+
+                            // Center the image in the PDF page
+                            let x = (pdfWidth - imgDisplayWidth) / 2;
+                            let y = (pdfHeight - imgDisplayHeight) / 2;
+
+                            doc.addImage(imgData, 'PNG', x, y, imgDisplayWidth, imgDisplayHeight);
+                            var pdfBlob = doc.output('blob');
+
+                            createDownloadLink(pdfBlob, file.name.replace(/\.[^/.]+$/, '') + '.pdf', 'downloadLinkImg');
+                        };
+                        img.onerror = function () {
+                            alert('Failed to load the image for conversion.');
+                        };
+                        img.src = e.target.result;
+                    } else {
+                        // Convert Image to Image
+                        let img = new Image();
+                        img.onload = function () {
+                            let canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            let ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+
+                            canvas.toBlob(function (blob) {
+                                createDownloadLink(blob, file.name.replace(/\.[^/.]+$/, '') + '.' + outputFormat, 'downloadLinkImg');
+                            }, 'image/' + outputFormat);
+                        };
+                        img.onerror = function () {
+                            alert('Failed to load the image for conversion.');
+                        };
+                        img.src = e.target.result;
+                    }
+                } catch (error) {
+                    console.error('Error during image conversion:', error);
+                    alert('An error occurred during image conversion.');
+                }
+            };
+
+            if (inputFormat === 'pdf') {
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
