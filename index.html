@@ -16,7 +16,7 @@
             --button-bg: #25E2CC;
             --button-text: #000000;
             --button-hover-bg: #1DB8A6;
-            --converter-bg: #f0f0f0;
+            --converter-bg: rgba(240, 240, 240, 0.9);
             --progress-bg: #ecf0f1;
             --progress-bar: #25E2CC;
             --modal-bg: #25E2CC;
@@ -31,7 +31,7 @@
             --button-bg: #3a3a3a;
             --button-text: #ffffff;
             --button-hover-bg: #5a5a5a;
-            --converter-bg: #2a2a2a;
+            --converter-bg: rgba(42, 42, 42, 0.9);
             --progress-bg: #444444;
             --progress-bar: #25E2CC;
             --modal-bg: #3a3a3a;
@@ -50,51 +50,39 @@
             transition: background-color 0.3s, color 0.3s;
             position: relative;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden; /* Make the page non-scrollable */
             background-image: url('https://source.unsplash.com/1600x900/?technology'); /* Example background image */
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
 
-        /* Backlight Animation for Dark Theme */
-        .dark::before {
-            content: '';
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 300px;
-            height: 300px;
-            background: var(--backlight-color);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            animation: rotate 10s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes rotate {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
+        /* Dark Theme Backlight Removal */
+        /* Removed the rotating circle in dark mode as per request */
 
         /* Dark Theme Switch Button */
         .theme-switch {
             position: fixed;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            background: transparent;
+            top: 20px;
+            left: 20px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
             border: none;
-            color: var(--text-color);
-            font-size: 24px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             cursor: pointer;
             opacity: 0.3;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, background-color 0.3s, transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 1001;
         }
 
         .theme-switch:hover {
             opacity: 1;
+            transform: scale(1.1);
         }
 
         /* Container Styles */
@@ -112,6 +100,7 @@
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            font-weight: 600;
         }
 
         .converter-section {
@@ -121,6 +110,7 @@
         .converter-section h2 {
             text-align: center;
             margin-bottom: 10px;
+            font-weight: 600;
         }
 
         .converter-section p {
@@ -145,7 +135,7 @@
             color: var(--button-text);
             padding: 10px 20px;
             font-size: 16px;
-            border-radius: 4px;
+            border-radius: 50px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -201,7 +191,7 @@
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 50px;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -231,6 +221,7 @@
         .progress-text {
             margin-top: 10px;
             font-size: 14px;
+            text-align: center;
         }
 
         .download-link {
@@ -240,9 +231,11 @@
             color: var(--button-text);
             background-color: var(--button-bg);
             padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 50px;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: block;
         }
 
         .download-link:hover {
@@ -321,8 +314,7 @@
 
             .theme-switch {
                 top: 10px;
-                left: 50%;
-                transform: translate(-50%, -50%);
+                left: 20px;
             }
         }
     </style>
@@ -336,7 +328,6 @@
     <div class="container">
         <h1>TSV-XLXS Converter</h1>
         <div class="converter-section" id="converter">
-            <h2>Convert .TSV to .XLSX and vice versa</h2>
             <p>Select a .TSV or .XLSX file to convert between these formats.</p>
             <div class="file-input">
                 <input type="file" id="fileInput" accept=".tsv,.xlsx">
@@ -389,8 +380,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.1.1/jspdf.plugin.autotable.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-
-    <!-- JavaScript Code -->
     <script>
         // Supported Formats Mapping
         const formatMappings = {
@@ -706,7 +695,7 @@
 
             downloadLink.href = URL.createObjectURL(blob);
             downloadLink.download = filename;
-            downloadLink.style.display = 'inline-block';
+            downloadLink.style.display = 'block'; // Changed to block for better visibility
 
             // Show success modal
             showSuccessModal();
