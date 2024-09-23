@@ -18,11 +18,10 @@
             --button-hover-bg: #1DB8A6;
             --converter-bg: rgba(240, 240, 240, 0.9);
             --progress-bg: #ecf0f1;
-            --progress-bar: #25E2CC;
+            --progress-bar: linear-gradient(90deg, var(--button-bg) 25%, rgba(37, 226, 204, 0.7) 50%, var(--button-bg) 75%);
             --modal-bg: #25E2CC;
             --modal-text: #000000;
             --footer-text: #000000;
-            --backlight-color: rgba(255, 255, 255, 0.1);
         }
 
         .dark {
@@ -33,11 +32,10 @@
             --button-hover-bg: #5a5a5a;
             --converter-bg: rgba(42, 42, 42, 0.9);
             --progress-bg: #444444;
-            --progress-bar: #25E2CC;
+            --progress-bar: linear-gradient(90deg, var(--button-bg) 25%, rgba(37, 226, 204, 0.7) 50%, var(--button-bg) 75%);
             --modal-bg: #3a3a3a;
             --modal-text: #ffffff;
             --footer-text: #ffffff;
-            --backlight-color: rgba(255, 255, 255, 0.1);
         }
 
         /* Global Styles */
@@ -56,9 +54,6 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-
-        /* Dark Theme Backlight Removal */
-        /* Removed the rotating circle in dark mode as per request */
 
         /* Dark Theme Switch Button */
         .theme-switch {
@@ -209,19 +204,39 @@
             margin-top: 20px;
             display: none;
             overflow: hidden;
+            position: relative;
         }
 
         .progress-bar {
             height: 20px;
             background-color: var(--progress-bar);
             width: 0%;
-            transition: width 0.2s;
+            animation: progressAnimation 2s infinite;
+        }
+
+        @keyframes progressAnimation {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+
+        /* Enhanced Progress Bar Animation */
+        .progress-bar {
+            background: var(--progress-bar);
+            background-size: 200% 100%;
+            animation: loading 2s linear infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
         }
 
         .progress-text {
             margin-top: 10px;
             font-size: 14px;
             text-align: center;
+            display: none;
         }
 
         .download-link {
@@ -235,7 +250,6 @@
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-            display: block;
         }
 
         .download-link:hover {
@@ -543,45 +557,42 @@
             resetProgress();
             downloadLink.style.display = 'none';
 
-            // Simulate processing time based on file size
-            const fileSize = file.size;
-            const processingTime = Math.max(Math.floor(fileSize / 500000), 1); // Approximate processing time in seconds
-            let timeRemaining = processingTime;
-
-            // Show progress container
+            // Show progress container and text
             const progressContainer = document.getElementById('progressContainer');
             const progressBar = document.getElementById('progressBar');
             const progressText = document.getElementById('progressText');
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
-            progressText.textContent = `Progress: 0% - Estimated time remaining: ${timeRemaining} seconds`;
+            progressText.style.display = 'block';
+            progressText.textContent = `Progress: 0%`;
 
-            // Update progress every second
-            const intervalId = setInterval(() => {
-                if (timeRemaining > 0) {
-                    timeRemaining--;
-                    const progressPercent = ((processingTime - timeRemaining) / processingTime) * 100;
-                    progressBar.style.width = `${progressPercent}%`;
-                    progressText.textContent = `Progress: ${Math.round(progressPercent)}% - Estimated time remaining: ${timeRemaining} seconds`;
-                } else {
-                    clearInterval(intervalId);
-                    progressBar.style.width = '100%';
-                    progressText.textContent = 'Processing complete.';
+            // Simulate processing time based on file size
+            const fileSize = file.size;
+            const processingTime = Math.max(Math.floor(fileSize / 500000), 1); // Approximate processing time in seconds
+            let progress = 0;
+            const progressIncrement = 100 / (processingTime * 10); // Update progress 10 times per second
+
+            const progressInterval = setInterval(() => {
+                if (progress < 100) {
+                    progress += progressIncrement;
+                    progress = Math.min(progress, 100);
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `Progress: ${Math.round(progress)}%`;
                 }
-            }, 1000);
+            }, 100); // Update every 100ms
 
             // Perform conversion after processing time
             setTimeout(() => {
-                try {
-                    performConversion(file, inferredInputFormat, outputFormat, fileCategory);
-                } catch (error) {
-                    console.error('Conversion error:', error);
-                    alert('An error occurred during conversion.');
-                } finally {
-                    clearInterval(intervalId);
-                    progressBar.style.width = '100%';
-                    progressText.textContent = 'Processing complete.';
-                }
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressText.textContent = `Progress: 100%`;
+                // Hide progress after a short delay
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressText.style.display = 'none';
+                }, 500);
+                // Perform the actual conversion
+                performConversion(file, inferredInputFormat, outputFormat, fileCategory);
             }, processingTime * 1000);
         }
 
@@ -676,6 +687,7 @@
 
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
+            progressText.style.display = 'none';
             progressText.textContent = '';
         }
 
@@ -695,7 +707,8 @@
 
             downloadLink.href = URL.createObjectURL(blob);
             downloadLink.download = filename;
-            downloadLink.style.display = 'block'; // Changed to block for better visibility
+            downloadLink.style.display = 'block'; // Show the download link only after conversion
+            downloadLink.textContent = `Download ${filename}`;
 
             // Show success modal
             showSuccessModal();
