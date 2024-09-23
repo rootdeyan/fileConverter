@@ -2,159 +2,247 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Comprehensive File Format Converter</title>
-    <!-- Include Ubuntu font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <title>TSV-XLXS Converter</title>
     <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- CSS Styling -->
     <style>
+        /* CSS Variables for Themes */
+        :root {
+            --background-color: #ffffff;
+            --text-color: #000000;
+            --button-bg: #25E2CC;
+            --button-text: #000000;
+            --button-hover-bg: #1DB8A6;
+            --converter-bg: #f0f0f0;
+            --progress-bg: #ecf0f1;
+            --progress-bar: #25E2CC;
+            --modal-bg: #25E2CC;
+            --modal-text: #000000;
+            --footer-text: #000000;
+        }
+
+        .dark {
+            --background-color: #1e1e1e;
+            --text-color: #ffffff;
+            --button-bg: #3a3a3a;
+            --button-text: #ffffff;
+            --button-hover-bg: #5a5a5a;
+            --converter-bg: #2a2a2a;
+            --progress-bg: #444444;
+            --progress-bar: #25E2CC;
+            --modal-bg: #3a3a3a;
+            --modal-text: #ffffff;
+            --footer-text: #ffffff;
+        }
+
         /* Global Styles */
         body {
-            font-family: 'Ubuntu', sans-serif;
-            background: linear-gradient(to bottom, #003D5B, #25E2CC);
+            font-family: 'Futura', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
-            color: #fff;
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        h1 {
-            margin-bottom: 30px;
-            text-align: center;
-            color: #fff;
+
+        /* Backlight Animation for Dark Theme */
+        .dark::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: rotate 10s linear infinite;
+            z-index: -1;
         }
-        /* Converter Container */
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Dark Theme Switch Button */
+        .theme-switch {
+            position: fixed;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+            z-index: 1001;
+        }
+
+        .theme-switch:hover {
+            opacity: 1;
+        }
+
+        /* Container Styles */
         .container {
             width: 90%;
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 30px;
-        }
-        .converter-section {
-            background-color: #fff;
-            color: #003D5B;
-            padding: 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--converter-bg);
             border-radius: 8px;
-            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
         }
-        .converter-section h2 {
-            margin-top: 0;
+
+        h1 {
+            text-align: center;
             margin-bottom: 20px;
-            font-size: 24px;
-            color: #003D5B;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
         }
-        .converter-section p {
-            font-size: 16px;
-            color: #003D5B;
-            margin-bottom: 30px;
+
+        .converter-section {
+            padding: 20px;
         }
-        .file-input {
-            position: relative;
-            display: inline-block;
+
+        .converter-section h2 {
+            text-align: center;
             margin-bottom: 10px;
         }
+
+        .converter-section p {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
         .file-input input[type="file"] {
             display: none;
         }
+
         .file-input label {
-            background-color: #25E2CC;
-            color: #003D5B;
-            padding: 12px 24px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            padding: 10px 20px;
             font-size: 16px;
             border-radius: 4px;
             cursor: pointer;
-            display: inline-block;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .file-input label:hover {
-            background-color: #1DB8A6;
+            background-color: var(--button-hover-bg);
             transform: scale(1.05);
             box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
         }
+
         .file-name {
-            display: block;
             margin-top: 10px;
-            font-size: 16px;
-            color: #003D5B;
+            font-size: 14px;
+            word-break: break-all;
         }
+
         .format-selection {
-            margin: 20px 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
+
         .format-selection label {
-            margin: 0 10px;
             font-size: 16px;
-            color: #003D5B;
         }
+
         .format-selection select {
-            padding: 10px;
+            padding: 8px 12px;
             font-size: 16px;
-            margin: 0 10px;
             border-radius: 4px;
             border: 1px solid #bdc3c7;
             background-color: #ecf0f1;
-            color: #003D5B;
+            color: #000;
+            transition: background-color 0.3s, color 0.3s;
         }
+
+        body.dark .format-selection select {
+            background-color: #555;
+            color: #fff;
+            border: 1px solid #777;
+        }
+
         .convert-button {
-            background-color: #25E2CC;
-            color: #003D5B;
+            display: block;
+            margin: 0 auto;
+            background-color: var(--button-bg);
+            color: var(--button-text);
             border: none;
-            padding: 12px 24px;
+            padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 4px;
-            margin-top: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .convert-button:hover {
-            background-color: #1DB8A6;
+            background-color: var(--button-hover-bg);
             transform: scale(1.05);
             box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
         }
-        .download-link {
-            display: none;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #003D5B;
-            background-color: #25E2CC;
-            padding: 12px 24px;
-            border-radius: 4px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .download-link:hover {
-            background-color: #1DB8A6;
-            transform: scale(1.05);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-        }
-        /* Progress Bar Styles */
+
         .progress-container {
             width: 100%;
-            background-color: #ecf0f1;
+            background-color: var(--progress-bg);
             border-radius: 4px;
             margin-top: 20px;
             display: none;
             overflow: hidden;
         }
+
         .progress-bar {
             height: 20px;
-            background-color: #25E2CC;
+            background-color: var(--progress-bar);
             width: 0%;
             transition: width 0.2s;
         }
+
         .progress-text {
             margin-top: 10px;
             font-size: 14px;
-            color: #003D5B;
         }
+
+        .download-link {
+            display: none;
+            margin-top: 20px;
+            text-decoration: none;
+            color: var(--button-text);
+            background-color: var(--button-bg);
+            padding: 10px 20px;
+            border-radius: 4px;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-link:hover {
+            background-color: var(--button-hover-bg);
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
         /* Success Modal Styles */
         .success-modal {
             display: none;
@@ -167,71 +255,98 @@
             overflow: hidden;
             background-color: rgba(0,0,0,0.5);
         }
+
         .success-modal-content {
-            background-color: #25E2CC;
+            background-color: var(--modal-bg);
+            color: var(--modal-text);
             margin: 15% auto;
             padding: 20px;
-            border: none;
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 0.5s;
             width: 80%;
             max-width: 300px;
-            text-align: center;
-            border-radius: 10px;
-            position: relative;
-            animation: fadeIn 0.5s;
         }
+
         .success-modal-content i {
-            font-size: 60px;
-            color: #003D5B;
+            font-size: 40px;
             margin-bottom: 10px;
         }
+
         .success-modal-content p {
-            color: #003D5B;
             font-size: 18px;
             margin: 0;
         }
+
         @keyframes fadeIn {
             from {opacity: 0;}
             to {opacity: 1;}
         }
+
         /* Footer Styles */
         #footer {
             margin-top: 50px;
-            color: #000000;
+            color: var(--footer-text);
             font-size: 12px;
             text-align: center;
+            padding: 20px 0;
         }
+
+        /* Button Animations */
+        .file-input label,
+        .convert-button,
+        .download-link {
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+        }
+
         /* Responsive Adjustments */
-        @media (max-width: 1000px) {
-            .converter-section {
-                flex: 1 1 100%;
-                margin-right: 0;
-                margin-left: 0;
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .format-selection {
+                flex-direction: column;
+            }
+
+            .theme-switch {
+                top: 10px;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Comprehensive File Format Converter</h1>
+    <!-- Dark Theme Switch Button -->
+    <button id="themeSwitch" class="theme-switch" aria-label="Toggle Dark Theme">
+        <i class="fas fa-moon"></i>
+    </button>
 
-        <!-- Converter Section -->
+    <div class="container">
+        <h1>TSV-XLXS Converter</h1>
         <div class="converter-section" id="converter">
-            <h2>File Format Converter</h2>
-            <p>Convert your files between various formats including documents, images, audio, video, spreadsheets, presentations, compressed files, executables, and code files.</p>
+            <h2>Convert .TSV to .XLSX and vice versa</h2>
+            <p>Select a .TSV or .XLSX file to convert between these formats.</p>
             <div class="file-input">
-                <input type="file" id="fileInput" accept=".doc,.docx,.pdf,.txt,.odt,.rtf,.xls,.xlsx,.csv,.ods,.ppt,.pptx,.odp,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.mp3,.wav,.aac,.flac,.mp4,.avi,.mov,.mkv,.wmv,.zip,.rar,.7z,.tar.gz,.exe,.bat,.sh,.apk,.html,.css,.js,.py,.java,.c,.cpp">
+                <input type="file" id="fileInput" accept=".tsv,.xlsx">
                 <label for="fileInput">Choose File</label>
             </div>
-            <!-- Display selected file name -->
             <span id="fileName" class="file-name"></span>
             <div class="format-selection">
                 <label for="inputFormat">From:</label>
                 <select id="inputFormat" disabled>
                     <option value="auto">Auto-detect</option>
+                    <option value="tsv">TSV</option>
+                    <option value="xlsx">XLSX</option>
                 </select>
                 <label for="outputFormat">To:</label>
                 <select id="outputFormat" disabled>
                     <option value="">Select Output Format</option>
+                    <option value="tsv">TSV</option>
+                    <option value="xlsx">XLSX</option>
                 </select>
             </div>
             <button id="convertButton" class="convert-button" disabled>Convert File</button>
@@ -248,7 +363,7 @@
         <p><u>All processing is done locally in your browser. Your files are not uploaded to any server.</u></p>
         <p><b>Limitations:</b><br>
             Some conversions may not preserve all formatting or metadata.<br>
-            Complex files (e.g., PDFs with intricate layouts, large media files) may have limitations during conversion.</p>
+            Large files may have limitations during conversion.</p>
         <p>Converter by Deyan Simeonov</p>
     </div>
 
@@ -262,27 +377,332 @@
 
     <!-- Include Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Include jsPDF library (version 1.5.3) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
-    <!-- Include jsPDF-AutoTable plugin (version 3.1.1) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.1.1/jspdf.plugin.autotable.js"></script>
-    <!-- Include PDF.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
     <!-- JavaScript Code -->
     <script>
+        // Supported Formats Mapping
+        const formatMappings = {
+            spreadsheet: {
+                extensions: ['tsv', 'xlsx'],
+                to: ['tsv', 'xlsx']
+            }
+        };
+
+        // Flatten all extensions for easy lookup
+        const allExtensions = Object.values(formatMappings).flatMap(category => category.extensions);
+
+        // Populate From and To Dropdowns based on file type
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const inputFormatSelect = document.getElementById('inputFormat');
+        const outputFormatSelect = document.getElementById('outputFormat');
+        const convertButton = document.getElementById('convertButton');
+        const downloadLink = document.getElementById('downloadLink');
+        const themeSwitch = document.getElementById('themeSwitch');
+
+        // Initialize Theme based on localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                themeSwitch.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark');
+                themeSwitch.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        });
+
+        // Event Listener for Theme Switch
+        themeSwitch.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            if (isDark) {
+                themeSwitch.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeSwitch.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Event Listener for File Selection
+        fileInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) {
+                resetConverter();
+                return;
+            }
+
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+
+            if (!allExtensions.includes(fileExtension)) {
+                alert('Unsupported file type. Please select a .TSV or .XLSX file.');
+                resetConverter();
+                return;
+            }
+
+            fileNameDisplay.textContent = fileName;
+
+            // Determine file category
+            let fileCategory = null;
+            for (const [category, data] of Object.entries(formatMappings)) {
+                if (data.extensions.includes(fileExtension)) {
+                    fileCategory = category;
+                    break;
+                }
+            }
+
+            if (!fileCategory) {
+                alert('Could not determine the file category.');
+                resetConverter();
+                return;
+            }
+
+            // Populate From Dropdown
+            inputFormatSelect.innerHTML = '<option value="auto">Auto-detect</option>';
+            inputFormatSelect.disabled = false;
+
+            // List specific formats if not auto-detect
+            formatMappings[fileCategory].extensions.forEach(ext => {
+                inputFormatSelect.innerHTML += `<option value="${ext}">${ext.toUpperCase()}</option>`;
+            });
+
+            // Populate To Dropdown based on the file category
+            outputFormatSelect.innerHTML = '<option value="">Select Output Format</option>';
+            formatMappings[fileCategory].to.forEach(ext => {
+                // Prevent selecting the same format as input unless auto
+                if (ext !== fileExtension || inputFormatSelect.value === 'auto') {
+                    outputFormatSelect.innerHTML += `<option value="${ext}">${ext.toUpperCase()}</option>`;
+                }
+            });
+
+            outputFormatSelect.disabled = false;
+            convertButton.disabled = false;
+        });
+
+        // Reset Converter Function
+        function resetConverter() {
+            fileInput.value = '';
+            fileNameDisplay.textContent = '';
+            inputFormatSelect.innerHTML = '<option value="auto">Auto-detect</option>';
+            inputFormatSelect.disabled = true;
+            outputFormatSelect.innerHTML = '<option value="">Select Output Format</option>';
+            outputFormatSelect.disabled = true;
+            convertButton.disabled = true;
+            resetProgress();
+            downloadLink.style.display = 'none';
+        }
+
+        // Convert Button Event Listener
+        convertButton.addEventListener('click', function () {
+            handleConversion();
+        });
+
+        // Main Conversion Handler
+        function handleConversion() {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file to convert.');
+                return;
+            }
+
+            const inputFormat = inputFormatSelect.value;
+            const outputFormat = outputFormatSelect.value;
+
+            if (!outputFormat) {
+                alert('Please select an output format.');
+                return;
+            }
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const inferredInputFormat = inputFormat === 'auto' ? fileExtension : inputFormat;
+
+            // Determine file category
+            let fileCategory = null;
+            for (const [category, data] of Object.entries(formatMappings)) {
+                if (data.extensions.includes(fileExtension)) {
+                    fileCategory = category;
+                    break;
+                }
+            }
+
+            if (!fileCategory) {
+                alert('Unsupported file category.');
+                return;
+            }
+
+            // Check if output format is supported for the file category
+            if (!formatMappings[fileCategory].to.includes(outputFormat)) {
+                alert(`Conversion from ${fileCategory} to ${outputFormat.toUpperCase()} is not supported.`);
+                return;
+            }
+
+            // Reset progress and hide download link
+            resetProgress();
+            downloadLink.style.display = 'none';
+
+            // Simulate processing time based on file size
+            const fileSize = file.size;
+            const processingTime = Math.max(Math.floor(fileSize / 500000), 1); // Approximate processing time in seconds
+            let timeRemaining = processingTime;
+
+            // Show progress container
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressText.textContent = `Progress: 0% - Estimated time remaining: ${timeRemaining} seconds`;
+
+            // Update progress every second
+            const intervalId = setInterval(() => {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    const progressPercent = ((processingTime - timeRemaining) / processingTime) * 100;
+                    progressBar.style.width = `${progressPercent}%`;
+                    progressText.textContent = `Progress: ${Math.round(progressPercent)}% - Estimated time remaining: ${timeRemaining} seconds`;
+                } else {
+                    clearInterval(intervalId);
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Processing complete.';
+                }
+            }, 1000);
+
+            // Perform conversion after processing time
+            setTimeout(() => {
+                try {
+                    performConversion(file, inferredInputFormat, outputFormat, fileCategory);
+                } catch (error) {
+                    console.error('Conversion error:', error);
+                    alert('An error occurred during conversion.');
+                } finally {
+                    clearInterval(intervalId);
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Processing complete.';
+                }
+            }, processingTime * 1000);
+        }
+
+        // Conversion Functions
+        async function performConversion(file, inputFormat, outputFormat, category) {
+            switch (category) {
+                case 'spreadsheet':
+                    await convertSpreadsheet(file, inputFormat, outputFormat);
+                    break;
+                default:
+                    alert('Unsupported file category for conversion.');
+            }
+        }
+
+        // Spreadsheet Conversion Function
+        function convertSpreadsheet(file, inputFormat, outputFormat) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = async function (e) {
+                    try {
+                        let data;
+                        let workbook, worksheet, rows;
+
+                        if (inputFormat === 'xlsx') {
+                            data = e.target.result;
+                        } else if (inputFormat === 'tsv') {
+                            data = e.target.result;
+                        } else {
+                            alert('Unsupported input format.');
+                            return resolve();
+                        }
+
+                        if (outputFormat === 'xlsx') {
+                            // Convert TSV to XLSX
+                            if (inputFormat === 'tsv') {
+                                // Parse TSV data
+                                rows = data.split('\n').map(row => row.split('\t'));
+                                workbook = XLSX.utils.book_new();
+                                worksheet = XLSX.utils.aoa_to_sheet(rows);
+                                XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+                                const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+                                const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                                createDownloadLink(blob, file.name.replace(/\.[^/.]+$/, '') + '.xlsx');
+                            } else {
+                                // Convert XLSX to XLSX (no conversion needed)
+                                const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                                createDownloadLink(blob, file.name);
+                            }
+                        } else if (outputFormat === 'tsv') {
+                            // Convert XLSX to TSV
+                            if (inputFormat === 'xlsx') {
+                                workbook = XLSX.read(data, { type: 'array' });
+                                worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                                rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                                // Convert rows to TSV format
+                                const tsvContent = rows.map(row => row.join('\t')).join('\n');
+                                const blob = new Blob([tsvContent], { type: 'text/tab-separated-values' });
+                                createDownloadLink(blob, file.name.replace(/\.[^/.]+$/, '') + '.tsv');
+                            } else {
+                                // Convert TSV to TSV (no conversion needed)
+                                const blob = new Blob([data], { type: 'text/tab-separated-values' });
+                                createDownloadLink(blob, file.name);
+                            }
+                        } else {
+                            alert('Unsupported output format.');
+                        }
+                        resolve();
+                    } catch (error) {
+                        console.error('Error during spreadsheet conversion:', error);
+                        alert('An error occurred during spreadsheet conversion.');
+                        reject(error);
+                    }
+                };
+
+                if (inputFormat === 'xlsx') {
+                    reader.readAsArrayBuffer(file);
+                } else if (inputFormat === 'tsv') {
+                    reader.readAsText(file);
+                } else {
+                    alert('Unsupported input format.');
+                    resolve();
+                }
+            });
+        }
+
+        // Helper Functions
+        function resetProgress() {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressText.textContent = '';
+        }
+
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 4000); // Display the modal for 4 seconds
+        }
+
         function createDownloadLink(blob, filename) {
-    // Revoke previous object URL to avoid memory leaks
-    if (downloadLink.href) {
-        URL.revokeObjectURL(downloadLink.href);
-    }
+            // Revoke previous object URL to avoid memory leaks
+            if (downloadLink.href) {
+                URL.revokeObjectURL(downloadLink.href);
+            }
 
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = filename;
-    downloadLink.style.display = 'inline-block';
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = filename;
+            downloadLink.style.display = 'inline-block';
 
-    // Show success modal
-    showSuccessModal();
-}
+            // Show success modal
+            showSuccessModal();
+        }
     </script>
 </body>
 </html>
