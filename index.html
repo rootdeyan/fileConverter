@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>TSV-XLXS Converter</title>
+    <!-- Include Google Fonts - Montserrat as Futura Alternative -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- CSS Styling -->
@@ -20,6 +22,7 @@
             --modal-bg: #25E2CC;
             --modal-text: #000000;
             --footer-text: #000000;
+            --backlight-color: rgba(255, 255, 255, 0.1);
         }
 
         .dark {
@@ -34,11 +37,12 @@
             --modal-bg: #3a3a3a;
             --modal-text: #ffffff;
             --footer-text: #ffffff;
+            --backlight-color: rgba(255, 255, 255, 0.1);
         }
 
         /* Global Styles */
         body {
-            font-family: 'Futura', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             margin: 0;
@@ -47,6 +51,10 @@
             position: relative;
             min-height: 100vh;
             overflow-x: hidden;
+            background-image: url('https://source.unsplash.com/1600x900/?technology'); /* Example background image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         /* Backlight Animation for Dark Theme */
@@ -57,7 +65,7 @@
             left: 50%;
             width: 300px;
             height: 300px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--backlight-color);
             border-radius: 50%;
             transform: translate(-50%, -50%);
             animation: rotate 10s linear infinite;
